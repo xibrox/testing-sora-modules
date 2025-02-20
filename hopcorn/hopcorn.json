@@ -1,0 +1,17 @@
+{
+    "sourceName": "HopCorn+",
+    "iconUrl": "https://raw.githubusercontent.com/xibrox/sora-movie-module/refs/heads/main/hopcorn/icon.png",
+    "author": {
+        "name": "ibro",
+        "icon": "https://scontent.fprg6-1.fna.fbcdn.net/v/t39.30808-6/365288591_3660922007469197_6703853944233848190_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=nK-KaalkgS4Q7kNvgFtyoLf&_nc_zt=23&_nc_ht=scontent.fprg6-1.fna&_nc_gid=A-IeV-PGfNMiYR0tSEmP7D3&oh=00_AYD-4pe575IoiA_Zl269PIU-qtvZYOfX2aPl6mY8aupB5w&oe=67A9674D"
+    },
+    "version": "1.0.0",
+    "language": "English",
+    "streamType": "HLS",
+    "quality": "1080p",
+    "baseUrl": "https://api.themoviedb.org/",
+    "searchBaseUrl": "https://api.themoviedb.org/3/search/multi?api_key=aad3fab1607b552befd9a2ac37e556af&query=%s",
+    "scriptUrl": "https://raw.githubusercontent.com/xibrox/sora-movie-module/refs/heads/main/hopcorn/hopcorn.js",
+    "asyncJS": true,
+    "softsub": true
+}
