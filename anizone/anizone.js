@@ -1,14 +1,14 @@
 function searchResults(html) {
     const results = [];
-    const animeListRegex = /<div\s+class="relative overflow-hidden[^>]*>.*?<img\s+src="([^"]+)"[^>]*>.*?<a[^>]*href="([^"]+)"[^>]*title="([^"]+)"/gs;
+    const animeListRegex = /<div\s+class="relative overflow-hidden[^>]*>[\s\S]*?<img\s+src="([^"]+)"[^>]*alt="([^"]+)"[\s\S]*?<a[^>]*href="([^"]+)"[^>]*title="([^"]+)"/g;
     
     const items = html.matchAll(animeListRegex);
   
     for (const item of items) {
         results.push({
-            title: item[3].trim(),
+            title: item[4].trim(),
             image: item[1].trim(),
-            href: new URL(item[2], "https://anizone.to").href
+            href: new URL(item[3], "https://anizone.to").href
         });
     }
     return results;
