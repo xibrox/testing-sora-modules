@@ -1,12 +1,12 @@
 function searchResults(html) {
     const results = [];
-    const animeListRegex = /<div\s+class="relative overflow-hidden[^>]*>.*?<img\s+src="([^"]+)"[^>]*alt="([^"]+)".*?<a[^>]*href="([^"]+)"[^>]*title="[^"]+"[^>]*>.*?<\/a>/gs;
+    const animeListRegex = /<div\s+class="relative overflow-hidden[^>]*>.*?<img\s+src="([^"]+)"[^>]*alt="([^"]+)".*?<a[^>]*href="([^"]+)"[^>]*title="([^"]+)"[^>]*>/gs;
     
     const items = html.matchAll(animeListRegex);
   
     for (const item of items) {
         results.push({
-            title: item[2].trim(),
+            title: item[4].trim(),
             image: item[1].trim(),
             href: item[3].trim()
         });
