@@ -1,0 +1,15 @@
+{
+    "sourceName": "AniZone",
+    "iconUrl": "https://static.thenounproject.com/png/4595376-200.png",
+    "author": {
+        "name": "ibro",
+        "icon": "https://scontent.fprg6-1.fna.fbcdn.net/v/t39.30808-6/365288591_3660922007469197_6703853944233848190_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=nK-KaalkgS4Q7kNvgFtyoLf&_nc_zt=23&_nc_ht=scontent.fprg6-1.fna&_nc_gid=A-IeV-PGfNMiYR0tSEmP7D3&oh=00_AYD-4pe575IoiA_Zl269PIU-qtvZYOfX2aPl6mY8aupB5w&oe=67A9674D"
+    },
+    "version": "1.0.0",
+    "language": "Japanese",
+    "streamType": "HLS",
+    "quality": "720p",
+    "baseUrl": "https://anizone.to/",
+    "searchBaseUrl": "https://anizone.to/anime?search=%s",
+    "scriptUrl": "https://raw.githubusercontent.com/xibrox/testing-sora-modules/refs/heads/main/anizone/anizone.js"
+}
