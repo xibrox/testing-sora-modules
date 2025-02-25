@@ -91,7 +91,7 @@ async function extractEpisodes(url) {
             if (!match) throw new Error("Invalid URL format");
             const movieId = match[1];
             return JSON.stringify([
-                { href: `https://hexa.watch/watch/movie/${movieId}`, number: 1, title: "Full Movie" }
+                { href: `https://hexa.watch/watch/movie/iframe/${movieId}`, number: 1, title: "Full Movie" }
             ]);
         } else if(url.includes('/watch/tv/')) {
             const match = url.match(/https:\/\/hexa\.watch\/watch\/tv\/([^\/]+)/);
@@ -112,7 +112,7 @@ async function extractEpisodes(url) {
                 
                 if (seasonData.episodes && seasonData.episodes.length) {
                     const episodes = seasonData.episodes.map(episode => ({
-                        href: `https://hexa.watch/watch/tv/${showId}/${seasonNumber}/${episode.episode_number}`,
+                        href: `https://hexa.watch/watch/tv/iframe/${showId}/${seasonNumber}/${episode.episode_number}`,
                         number: episode.episode_number,
                         title: episode.name || ""
                     }));
