@@ -133,7 +133,7 @@ async function extractEpisodes(url) {
 async function extractStreamUrl(url) {
     try {
         if (url.includes('/watch/movie/')) {
-            const match = url.match(/https:\/\/hexa\.watch\/watch\/movie\/([^\/]+)/);
+            const match = url.match(/https:\/\/hexa\.watch\/watch\/movie\/iframe\/([^\/]+)/);
             if (!match) throw new Error("Invalid URL format");
 
             const movieId = match[1];
@@ -142,10 +142,8 @@ async function extractStreamUrl(url) {
                 const responseText = await fetch(`https://tom.autoembed.cc/api/getVideoSource?type=movie&id=${movieId}`);
                 const data = JSON.parse(responseText);
 
-                if (data && data.stream && Array.isArray(data.stream)) {
-                    const hlsSource = data.stream.find(source => source.type === 'hls');
-
-                    if (hlsSource && hlsSource.url) return hlsSource.url;
+                if (data && data.videoSource && Array.isArray(data.videoSource)) {
+                    if (data && data.videoSource) return data.videoSource;
                 }
             } catch (err) {
                 console.log(`Fetch error on endpoint https://tom.autoembed.cc/api/getVideoSource?type=movie&id=${movieId} for movie ${movieId}:`, err);
@@ -153,7 +151,7 @@ async function extractStreamUrl(url) {
 
             return null;
         } else if (url.includes('/watch/tv/')) {
-            const match = url.match(/https:\/\/hexa\.watch\/watch\/tv\/([^\/]+)\/([^\/]+)\/([^\/]+)/);
+            const match = url.match(/https:\/\/hexa\.watch\/watch\/tv\/iframe\/([^\/]+)\/([^\/]+)\/([^\/]+)/);
             if (!match) throw new Error("Invalid URL format");
 
             const showId = match[1];
@@ -164,10 +162,8 @@ async function extractStreamUrl(url) {
                 const responseText = await fetch(`https://tom.autoembed.cc/api/getVideoSource?type=tv&id=${showId}/${seasonNumber}/${episodeNumber}`);
                 const data = JSON.parse(responseText);
 
-                if (data && data.stream && Array.isArray(data.stream)) {
-                    const hlsSource = data.stream.find(source => source.type === 'hls');
-                    
-                    if (hlsSource && hlsSource.url) return hlsSource.url;
+                if (data && data.videoSource && Array.isArray(data.videoSource)) {
+                    if (data && data.videoSource) return data.videoSource;
                 }
             } catch (err) {
                 console.log(`Fetch error on endpoint https://tom.autoembed.cc/api/getVideoSource?type=tv&id=${showId}/${seasonNumber}/${episodeNumber} for TV show ${showId} S${seasonNumber}E${episodeNumber}:`, err);
