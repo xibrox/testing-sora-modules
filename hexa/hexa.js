@@ -132,9 +132,9 @@ async function extractEpisodes(url) {
 
 async function extractStreamUrl(url) {
     const endpoints = [
+        "https://fishstick.hexa.watch/api/hexa2/",
         "https://fishstick.hexa.watch/api/hexa1/",
         "https://fishstick.hexa.watch/api/hexa4/",
-        "https://fishstick.hexa.watch/api/hexa2/",
         "https://fishstick.hexa.watch/api/hexa3/"
     ];
 
