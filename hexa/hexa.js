@@ -131,13 +131,6 @@ async function extractEpisodes(url) {
 }
 
 async function extractStreamUrl(url) {
-    const endpoints = [
-        "https://fishstick.hexa.watch/api/hexa2/",
-        "https://fishstick.hexa.watch/api/hexa1/",
-        "https://fishstick.hexa.watch/api/hexa4/",
-        "https://fishstick.hexa.watch/api/hexa3/"
-    ];
-
     try {
         if (url.includes('/watch/movie/')) {
             const match = url.match(/https:\/\/hexa\.watch\/watch\/movie\/([^\/]+)/);
@@ -145,20 +138,19 @@ async function extractStreamUrl(url) {
 
             const movieId = match[1];
 
-            for (let i = 0; i < endpoints.length; i++) {
-                try {
-                    const responseText = await fetch(`${endpoints[i]}${movieId}`);
-                    const data = JSON.parse(responseText);
+            try {
+                const responseText = await fetch(`https://tom.autoembed.cc/api/getVideoSource?type=movie&id=${movieId}`);
+                const data = JSON.parse(responseText);
 
-                    if (data && data.stream && Array.isArray(data.stream)) {
-                        const hlsSource = data.stream.find(source => source.type === 'hls');
+                if (data && data.stream && Array.isArray(data.stream)) {
+                    const hlsSource = data.stream.find(source => source.type === 'hls');
 
-                        if (hlsSource && hlsSource.url) return hlsSource.url;
-                    }
-                } catch (err) {
-                    console.log(`Fetch error on endpoint ${endpoints[i]} for movie ${movieId}:`, err);
+                    if (hlsSource && hlsSource.url) return hlsSource.url;
                 }
+            } catch (err) {
+                console.log(`Fetch error on endpoint https://tom.autoembed.cc/api/getVideoSource?type=movie&id=${movieId} for movie ${movieId}:`, err);
             }
+
             return null;
         } else if (url.includes('/watch/tv/')) {
             const match = url.match(/https:\/\/hexa\.watch\/watch\/tv\/([^\/]+)\/([^\/]+)\/([^\/]+)/);
@@ -168,20 +160,19 @@ async function extractStreamUrl(url) {
             const seasonNumber = match[2];
             const episodeNumber = match[3];
 
-            for (let i = 0; i < endpoints.length; i++) {
-                try {
-                    const responseText = await fetch(`${endpoints[i]}${showId}/${seasonNumber}/${episodeNumber}`);
-                    const data = JSON.parse(responseText);
+            try {
+                const responseText = await fetch(`https://tom.autoembed.cc/api/getVideoSource?type=tv&id=${showId}/${seasonNumber}/${episodeNumber}`);
+                const data = JSON.parse(responseText);
 
-                    if (data && data.stream && Array.isArray(data.stream)) {
-                        const hlsSource = data.stream.find(source => source.type === 'hls');
-                        
-                        if (hlsSource && hlsSource.url) return hlsSource.url;
-                    }
-                } catch (err) {
-                    console.log(`Fetch error on endpoint ${endpoints[i]} for TV show ${showId} S${seasonNumber}E${episodeNumber}:`, err);
+                if (data && data.stream && Array.isArray(data.stream)) {
+                    const hlsSource = data.stream.find(source => source.type === 'hls');
+                    
+                    if (hlsSource && hlsSource.url) return hlsSource.url;
                 }
+            } catch (err) {
+                console.log(`Fetch error on endpoint https://tom.autoembed.cc/api/getVideoSource?type=tv&id=${showId}/${seasonNumber}/${episodeNumber} for TV show ${showId} S${seasonNumber}E${episodeNumber}:`, err);
             }
+
             return null;
         } else {
             throw new Error("Invalid URL format");
