@@ -142,9 +142,7 @@ async function extractStreamUrl(url) {
                 const responseText = await fetch(`https://tom.autoembed.cc/api/getVideoSource?type=movie&id=${movieId}`);
                 const data = JSON.parse(responseText);
 
-                if (data && data.videoSource && Array.isArray(data.videoSource)) {
-                    if (data && data.videoSource) return data.videoSource;
-                }
+                if (data && data.videoSource) return data.videoSource;
             } catch (err) {
                 console.log(`Fetch error on endpoint https://tom.autoembed.cc/api/getVideoSource?type=movie&id=${movieId} for movie ${movieId}:`, err);
             }
@@ -162,9 +160,7 @@ async function extractStreamUrl(url) {
                 const responseText = await fetch(`https://tom.autoembed.cc/api/getVideoSource?type=tv&id=${showId}/${seasonNumber}/${episodeNumber}`);
                 const data = JSON.parse(responseText);
 
-                if (data && data.videoSource && Array.isArray(data.videoSource)) {
-                    if (data && data.videoSource) return data.videoSource;
-                }
+                if (data && data.videoSource) return data.videoSource;
             } catch (err) {
                 console.log(`Fetch error on endpoint https://tom.autoembed.cc/api/getVideoSource?type=tv&id=${showId}/${seasonNumber}/${episodeNumber} for TV show ${showId} S${seasonNumber}E${episodeNumber}:`, err);
             }
