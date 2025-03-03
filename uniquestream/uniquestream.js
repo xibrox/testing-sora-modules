@@ -1,29 +1,15 @@
 async function searchResults(keyword) {
     try {
         const encodedKeyword = encodeURIComponent(keyword);
-        const responseText = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=68e094699525b18a70bab2f86b1fa706&query=${encodedKeyword}`);
+        const responseText = await fetch(`https://anime.uniquestream.net/api/v1/search?query=${encodedKeyword}&t=all`);
         const data = JSON.parse(responseText);
 
-        const transformedResults = data.results.map(result => {
-            if(result.media_type === "movie" || result.title) {
-                return {
-                    title: result.title || result.name || result.original_title || result.original_name,
-                    image: `https://image.tmdb.org/t/p/w500${result.poster_path}`,
-                    href: `https://bingeflex.vercel.app/movie/${result.id}`
-                };
-            } else if(result.media_type === "tv" || result.name) {
-                return {
-                    title: result.name || result.title || result.original_name || result.original_title,
-                    image: `https://image.tmdb.org/t/p/w500${result.poster_path}`,
-                    href: `https://bingeflex.vercel.app/tv/${result.id}`
-                };
-            } else {
-                return {
-                    title: result.title || result.name || result.original_name || result.original_title || "Untitled",
-                    image: `https://image.tmdb.org/t/p/w500${result.poster_path}`,
-                    href: `https://bingeflex.vercel.app/tv/${result.id}`
-                };
-            }
+        const transformedResults = data.series.map(result => {
+            return {
+                title: result.title || "Untitled",
+                image: result.image || "",
+                href: `https://anime.uniquestream.net/series/${result.content_id}/${result.title}`
+            };
         });
 
         return JSON.stringify(transformedResults);
@@ -35,39 +21,21 @@ async function searchResults(keyword) {
 
 async function extractDetails(url) {
     try {
-        if(url.includes('/movie/')) {
-            const match = url.match(/https:\/\/bingeflex\.vercel\.app\/movie\/([^\/]+)/);
-            if (!match) throw new Error("Invalid URL format");
+        const match = url.match(/https:\/\/anime\.uniquestream\.net\/series\/([^\/]+)\/([^\/]+)/);
+        if (!match) throw new Error("Invalid URL format");
 
-            const movieId = match[1];
-            const responseText = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=ad301b7cc82ffe19273e55e4d4206885`);
-            const data = JSON.parse(responseText);
+        const showId = match[1];
 
-            const transformedResults = [{
-                description: data.overview || 'No description available',
-                aliases: `Duration: ${data.runtime ? data.runtime + " minutes" : 'Unknown'}`,
-                airdate: `Released: ${data.release_date ? data.release_date : 'Unknown'}`
-            }];
+        const responseText = await fetch(`https://anime.uniquestream.net/api/v1/series/${showId}`);
+        const data = JSON.parse(responseText);
 
-            return JSON.stringify(transformedResults);
-        } else if(url.includes('/tv/')) {
-            const match = url.match(/https:\/\/bingeflex\.vercel\.app\/tv\/([^\/]+)/);
-            if (!match) throw new Error("Invalid URL format");
+        const transformedResults = [{
+            description: data.description || 'No description available',
+            aliases: `Duration: ${data.duration_ms ? (data.duration_ms / 60000).toFixed(2) + " minutes" : 'Unknown'}`,
+            airdate: `Aired: ${data.first_air_date ? data.first_air_date : 'Unknown'}`
+        }];
 
-            const showId = match[1];
-            const responseText = await fetch(`https://api.themoviedb.org/3/tv/${showId}?api_key=ad301b7cc82ffe19273e55e4d4206885`);
-            const data = JSON.parse(responseText);
-
-            const transformedResults = [{
-                description: data.overview || 'No description available',
-                aliases: `Duration: ${data.episode_run_time && data.episode_run_time.length ? data.episode_run_time.join(', ') + " minutes" : 'Unknown'}`,
-                airdate: `Aired: ${data.first_air_date ? data.first_air_date : 'Unknown'}`
-            }];
-
-            return JSON.stringify(transformedResults);
-        } else {
-            throw new Error("Invalid URL format");
-        }
+        return JSON.stringify(transformedResults);
     } catch (error) {
         console.log('Details error:', error);
         return JSON.stringify([{
@@ -80,49 +48,57 @@ async function extractDetails(url) {
 
 async function extractEpisodes(url) {
     try {
-        if(url.includes('/movie/')) {
-            const match = url.match(/https:\/\/bingeflex\.vercel\.app\/movie\/([^\/]+)/);
+        const match = url.match(/https:\/\/anime\.uniquestream\.net\/series\/([^\/]+)\/([^\/]+)/);
             
-            if (!match) throw new Error("Invalid URL format");
+        if (!match) throw new Error("Invalid URL format");
             
-            const movieId = match[1];
-            
-            return JSON.stringify([
-                { href: `https://bingeflex.vercel.app/movie/${movieId}`, number: 1, title: "Full Movie" }
-            ]);
-        } else if(url.includes('/tv/')) {
-            const match = url.match(/https:\/\/bingeflex\.vercel\.app\/tv\/([^\/]+)/);
-            
-            if (!match) throw new Error("Invalid URL format");
-            
-            const showId = match[1];
-            
-            const showResponseText = await fetch(`https://api.themoviedb.org/3/tv/${showId}?api_key=ad301b7cc82ffe19273e55e4d4206885`);
-            const showData = JSON.parse(showResponseText);
-            
-            let allEpisodes = [];
-            for (const season of showData.seasons) {
-                const seasonNumber = season.season_number;
+        const showId = match[1];
 
-                if(seasonNumber === 0) continue;
-                
-                const seasonResponseText = await fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${seasonNumber}?api_key=ad301b7cc82ffe19273e55e4d4206885`);
-                const seasonData = JSON.parse(seasonResponseText);
-                
-                if (seasonData.episodes && seasonData.episodes.length) {
-                    const episodes = seasonData.episodes.map(episode => ({
-                        href: `https://bingeflex.vercel.app/tv/${showId}?season=${seasonNumber}&episode=${episode.episode_number}`,
-                        number: episode.episode_number,
-                        title: episode.name || ""
-                    }));
-                    allEpisodes = allEpisodes.concat(episodes);
+        const responseText = await fetch(`https://anime.uniquestream.net/api/v1/series/${showId}`);
+
+        const data = JSON.parse(responseText);
+            
+        if (!data || !data.episodes || !data.episodes.length) {
+            return JSON.stringify([]);
+        }
+
+        const seasons = data.seasons.map(season => ({
+            content_id: season.content_id,
+            episode_count: season.episode_count,
+        }));
+
+        const fetchEpisodesFromSeasons = async () => {
+            const episodes = [];
+
+            for (const season of seasons) {
+                const episodesCount = season.episode_count;
+
+                const numberOfPages = Math.ceil(episodesCount / 20);
+
+                for (let i = 1; i <= numberOfPages; i++) {
+                    const responseText = await fetch(`https://anime.uniquestream.net/api/v1/season/${season.content_id}/episodes?page=${i}&limit=20&order_by=asc`);
+                    const data = JSON.parse(responseText);
+
+                    if (!data || !data.episodes || !data.episodes.length) {
+                        continue;
+                    }
+
+                    episodes.push(...data.episodes);
                 }
             }
-            
-            return JSON.stringify(allEpisodes);
-        } else {
-            throw new Error("Invalid URL format");
-        }
+
+            return episodes;
+        };
+
+        const episodes = await fetchEpisodesFromSeasons();
+        
+        const transformedResults = episodes.map(episode => ({
+            href: `https://anime.uniquestream.net/watch/${episode.content_id}/${episode.title}`,
+            number: episode.episode_number,
+            title: episode.title
+        }));
+
+        return JSON.stringify(transformedResults);
     } catch (error) {
         console.log('Fetch error in extractEpisodes:', error);
         return JSON.stringify([]);
