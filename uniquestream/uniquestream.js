@@ -103,19 +103,15 @@ async function extractStreamUrl(url) {
         
         const apiUrl = `https://anime.uniquestream.net/api/v1/episode/${episodeId}/media/dash/ja-JP`;
 
-        try {
-            const responseText = await fetch(apiUrl);
-            const data = JSON.parse(responseText);
-                    
-            if (data) {
-                const hlsSource = data.dash?.playlist;
+        const responseText = await fetch(apiUrl);
+        const data = JSON.parse(responseText);
 
-                console.log('HLS Source:', hlsSource);
+        if (data) {
+            const source = data.dash?.hard_subs?.find(playlist => playlist.locale === 'en-US')?.playlist;
 
-                if (hlsSource) return hlsSource;
-            }
-        } catch (err) {
-            console.log(`Fetch error on endpoint ${apiUrl} for show ${showId}:`, err);
+            console.log('Source:', JSON.stringify(source));
+
+            if (source) return source;
         }
         
         return null;
@@ -124,5 +120,3 @@ async function extractStreamUrl(url) {
         return null;
     }
 }
-
-extractStreamUrl(`https://anime.uniquestream.net/watch/Y98VK4SD`);
