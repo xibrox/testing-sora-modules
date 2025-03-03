@@ -4,6 +4,12 @@ async function searchResults(keyword) {
         const responseText = await fetch(`https://anime.uniquestream.net/api/v1/search?query=${encodedKeyword}&t=all`);
         const data = JSON.parse(responseText);
 
+        for (let i = 0; i < data.series.length; i++) {
+            const responseText = await fetch(`https://anime.uniquestream.net/api/v1/series/${data.series[i].content_id}`);
+            const seriesData = JSON.parse(responseText);
+            data.series[i].image = seriesData.images.find(image => image.type === "poster_tall")?.url;
+        }
+
         const transformedResults = data.series.map(result => {
             return {
                 title: result.title || "Untitled",
