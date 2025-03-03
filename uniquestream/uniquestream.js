@@ -90,7 +90,7 @@ async function extractEpisodes(url) {
         const episodes = await fetchEpisodesFromSeasons();
         
         const transformedResults = episodes.map(episode => ({
-            href: `https://anime.uniquestream.net/watch/${episode.content_id}/${episode.title}`,
+            href: `https://anime.uniquestream.net/watch/${episode.content_id}`,
             number: episode.episode_number,
             title: episode.title
         }));
