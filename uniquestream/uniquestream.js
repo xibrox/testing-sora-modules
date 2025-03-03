@@ -55,13 +55,10 @@ async function extractDetails(url) {
 async function extractEpisodes(url) {
     try {
         const match = url.match(/https:\/\/anime\.uniquestream\.net\/series\/([^\/]+)\/([^\/]+)/);
-            
         if (!match) throw new Error("Invalid URL format");
-            
+
         const showId = match[1];
-
         const responseText = await fetch(`https://anime.uniquestream.net/api/v1/series/${showId}`);
-
         const data = JSON.parse(responseText);
 
         const fetchEpisodesFromSeasons = async () => {
@@ -69,18 +66,13 @@ async function extractEpisodes(url) {
 
             for (const season of data.seasons) {
                 const episodesCount = season.episode_count;
-
                 const numberOfPages = Math.ceil(episodesCount / 20);
 
                 for (let i = 1; i <= numberOfPages; i++) {
                     const response = await fetch(`https://anime.uniquestream.net/api/v1/season/${season.content_id}/episodes?page=${i}&limit=20&order_by=asc`);
                     const episodesData = JSON.parse(response);
 
-                    if (!episodesData || !episodesData.episodes || !episodesData.episodes.length) {
-                        continue;
-                    }
-
-                    episodes.push(...episodesData.episodes);
+                    episodes.push(...episodesData);
                 }
             }
 
@@ -88,18 +80,20 @@ async function extractEpisodes(url) {
         };
 
         const episodes = await fetchEpisodesFromSeasons();
-        
+
         const transformedResults = episodes.map(episode => ({
             href: `https://anime.uniquestream.net/watch/${episode.content_id}`,
             number: episode.episode_number,
             title: episode.title
         }));
 
+        console.log("Transformed episodes: " + JSON.stringify(transformedResults));
+
         return JSON.stringify(transformedResults);
     } catch (error) {
         console.log('Fetch error in extractEpisodes:', error);
         return JSON.stringify([]);
-    }    
+    }
 }
 
 async function extractStreamUrl(url) {
@@ -267,3 +261,5 @@ async function extractStreamUrl(url) {
         return null;
     }
 }
+
+extractEpisodes(`https://anime.uniquestream.net/series/Yv2I6x71/Naruto`);
