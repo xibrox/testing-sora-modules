@@ -37,7 +37,7 @@ async function extractDetails(url) {
 
         const transformedResults = [{
             description: data.description || 'No description available',
-            aliases: `Duration: ${data.duration_ms ? (data.duration_ms / 60000).toFixed(2) + " minutes" : 'Unknown'}`,
+            aliases: `Duration: ${data.episode.duration_ms ? (data.episode.duration_ms / 60000).toFixed(2) + " minutes" : 'Unknown'}`,
             airdate: `Aired: ${data.first_air_date ? data.first_air_date : 'Unknown'}`
         }];
 
@@ -63,33 +63,24 @@ async function extractEpisodes(url) {
         const responseText = await fetch(`https://anime.uniquestream.net/api/v1/series/${showId}`);
 
         const data = JSON.parse(responseText);
-            
-        if (!data || !data.episodes || !data.episodes.length) {
-            return JSON.stringify([]);
-        }
-
-        const seasons = data.seasons.map(season => ({
-            content_id: season.content_id,
-            episode_count: season.episode_count,
-        }));
 
         const fetchEpisodesFromSeasons = async () => {
             const episodes = [];
 
-            for (const season of seasons) {
+            for (const season of data.seasons) {
                 const episodesCount = season.episode_count;
 
                 const numberOfPages = Math.ceil(episodesCount / 20);
 
                 for (let i = 1; i <= numberOfPages; i++) {
-                    const responseText = await fetch(`https://anime.uniquestream.net/api/v1/season/${season.content_id}/episodes?page=${i}&limit=20&order_by=asc`);
-                    const data = JSON.parse(responseText);
+                    const response = await fetch(`https://anime.uniquestream.net/api/v1/season/${season.content_id}/episodes?page=${i}&limit=20&order_by=asc`);
+                    const episodesData = JSON.parse(response);
 
-                    if (!data || !data.episodes || !data.episodes.length) {
+                    if (!episodesData || !episodesData.episodes || !episodesData.episodes.length) {
                         continue;
                     }
 
-                    episodes.push(...data.episodes);
+                    episodes.push(...episodesData.episodes);
                 }
             }
 
