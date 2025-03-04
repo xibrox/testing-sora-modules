@@ -1,42 +1,36 @@
 function searchResults(html) {
     const results = [];
     
-    // Match all <a> elements with class "transition-200all morating"
     const anchorRegex = /<a\s+[^>]*class=["']transition-200all\s+morating["'][^>]*>([\s\S]*?)<\/a>/g;
     let anchorMatch;
     
     while ((anchorMatch = anchorRegex.exec(html)) !== null) {
-      const anchorHTML = anchorMatch[0];
-      
-      // Extract the href attribute
-      const hrefMatch = anchorHTML.match(/href=["']([^"']+)["']/);
-      const href = hrefMatch ? hrefMatch[1] : '';
-      const fullHref = href ? `https://svetserialu.io${href}` : '';
-      
-      // Extract the film title from <span class="name-search nunito">...</span>
-      const titleMatch = anchorHTML.match(/<span\s+class=["']name-search\s+nunito["']>([\s\S]*?)<\/span>/);
-      const title = titleMatch ? titleMatch[1].trim() : '';
-      
-      // Extract the image URL from <span class="image-search"> which contains an <img src="...">
-      const imageMatch = anchorHTML.match(/<span\s+class=["']image-search["'][^>]*>[\s\S]*?<img\s+[^>]*src=["']([^"']+)["']/);
-      const imageUrl = imageMatch ? imageMatch[1] : '';
-      const fullImageUrl = imageUrl ? `https://svetserialu.io${imageUrl}` : '';
-      
-      // Extract the year from <span class="year-search">...</span>
-      const yearMatch = anchorHTML.match(/<span\s+class=["']year-search["']>([\s\S]*?)<\/span>/);
-      const year = yearMatch ? yearMatch[1].trim() : '';
-      
-      // Extract the rating from <div class="progress-circle search-rating" data-progress="...">
-      const ratingMatch = anchorHTML.match(/<div\s+class=["']progress-circle\s+search-rating["'][^>]*data-progress=["']([^"']+)["']/);
-      const rating = ratingMatch ? ratingMatch[1].trim() : '';
-      
-      results.push({
-        title,
-        href: fullHref,
-        image: fullImageUrl,
-        year,
-        rating
-      });
+        const anchorHTML = anchorMatch[0];
+        
+        const hrefMatch = anchorHTML.match(/href=["']([^"']+)["']/);
+        const href = hrefMatch ? hrefMatch[1] : '';
+        const fullHref = href ? `https://svetserialu.io${href}` : '';
+        
+        const titleMatch = anchorHTML.match(/<span\s+class=["']name-search\s+nunito["']>([\s\S]*?)<\/span>/);
+        const title = titleMatch ? titleMatch[1].trim() : '';
+        
+        const imageMatch = anchorHTML.match(/<span\s+class=["']image-search["'][^>]*>[\s\S]*?<img\s+[^>]*src=["']([^"']+)["']/);
+        const imageUrl = imageMatch ? imageMatch[1] : '';
+        const fullImageUrl = imageUrl ? `https://svetserialu.io${imageUrl}` : '';
+
+        const yearMatch = anchorHTML.match(/<span\s+class=["']year-search["']>([\s\S]*?)<\/span>/);
+        const year = yearMatch ? yearMatch[1].trim() : '';
+
+        const ratingMatch = anchorHTML.match(/<div\s+class=["']progress-circle\s+search-rating["'][^>]*data-progress=["']([^"']+)["']/);
+        const rating = ratingMatch ? ratingMatch[1].trim() : '';
+        
+        results.push({
+            title,
+            href: fullHref,
+            image: fullImageUrl,
+            year,
+            rating
+        });
     }
     
     return results;
@@ -55,11 +49,11 @@ function extractDetails(html) {
     let airdate = airdateMatch ? airdateMatch[1].trim() : '';
     
     if (description && airdate) {
-      details.push({
-        description: description,
-        aliases: aliases,
-        airdate: airdate
-      });
+        details.push({
+            description: description,
+            aliases: aliases,
+            airdate: airdate
+        });
     }
     
     return details;
@@ -68,6 +62,8 @@ function extractDetails(html) {
 async function extractEpisodes(html) {
     const baseUrl = "https://svetserialu.io";
     const results = [];
+
+    console.log(html);
     
     // Step 1: Extract all accordion IDs from the main HTML
     const accordionIds = [];
@@ -82,7 +78,7 @@ async function extractEpisodes(html) {
       const url = `${baseUrl}/serial/naruto?loadAccordionId=${id}`;
       try {
         const response = await fetch(url);
-        const accordionHtml = JSON.parse(response);
+        const accordionHtml = await response.text();
         
         // Use regex to extract each episode from the accordion HTML.
         // This regex looks for an anchor with class "accordionLink",
@@ -102,6 +98,8 @@ async function extractEpisodes(html) {
           }
           episodes.push({ href, number, title });
         }
+
+        console.log(episodes);
         
         results.push({
           accordionId: id,
@@ -120,3 +118,5 @@ function extractStreamUrl(html) {
     const match = html.match(sourceRegex);
     return match ? match[1].replace(/&amp;/g, '&') : null;
 }
+
+extractEpisodes(`https://svetserialu.io/serial/naruto`);

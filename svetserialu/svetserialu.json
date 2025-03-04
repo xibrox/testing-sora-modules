@@ -11,5 +11,6 @@
     "quality": "720p",
     "baseUrl": "https://svetserialu.io/",
     "searchBaseUrl": "https://svetserialu.io/?searchfor=%s",
-    "scriptUrl": "https://raw.githubusercontent.com/xibrox/testing-sora-modules/refs/heads/main/svetserialu/svetserialu.js"
+    "scriptUrl": "https://raw.githubusercontent.com/xibrox/testing-sora-modules/refs/heads/main/svetserialu/svetserialu.js",
+    "async": true
 }
