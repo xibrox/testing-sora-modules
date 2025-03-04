@@ -100,7 +100,7 @@ function extractEpisodes(mainHtml) {
       const url = `${baseEpisodesUrl}?loadAccordionId=${id}`;
       try {
         const response = await fetch(url);
-        const accordionHtml = await response.text();
+        const accordionHtml = JSON.parse(response);
         
         // Use regex to extract each episode from the accordion HTML.
         // It extracts the href, episode number (from <span class="number_eps">),
