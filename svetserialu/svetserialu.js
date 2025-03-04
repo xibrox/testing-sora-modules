@@ -59,47 +59,66 @@ function extractDetails(html) {
     return details;
 }
   
-async function extractEpisodes(html) {
-    const baseUrl = "https://svetserialu.io";
-    const results = [];
-
-    console.log(html);
+function extractEpisodes(mainHtml) {
+    const baseSiteUrl = "https://svetserialu.io";
     
-    // Step 1: Extract all accordion IDs from the main HTML
+    // Extract the base episodes URL from the "Začať pozerať" anchor.
+    const urlRegex = /<a\s+href="([^"]+)"\s+class="button\s+starwatch\s+transition-200all">/;
+    const urlMatch = mainHtml.match(urlRegex);
+    const baseEpisodesUrl = urlMatch ? baseSiteUrl + urlMatch[1] : null;
+    
+    if (!baseEpisodesUrl) {
+      console.error("Base episodes URL not found in main HTML.");
+      return;
+    }
+    
+    // Extract all accordion IDs from the main HTML.
     const accordionIds = [];
     const accordionRegex = /<div class="accordion accordionId(\d+)">/g;
     let idMatch;
-    while ((idMatch = accordionRegex.exec(html)) !== null) {
+    while ((idMatch = accordionRegex.exec(mainHtml)) !== null) {
       accordionIds.push(idMatch[1]);
     }
     
-    // Step 2: For each accordion ID, fetch the corresponding HTML and extract episodes
+    // Call the async function to fetch and extract episodes.
+    fetchEpisodesForAccordions(baseEpisodesUrl, accordionIds)
+      .then(results => {
+        console.log("All extracted episodes:", results);
+        // You can now use `results` as needed.
+      })
+      .catch(error => {
+        console.error("Error fetching episodes:", error);
+      });
+  }
+
+  async function fetchEpisodesForAccordions(baseEpisodesUrl, accordionIds) {
+    const baseSiteUrl = "https://svetserialu.io";
+    const results = [];
+    
     for (const id of accordionIds) {
-      const url = `${baseUrl}/serial/naruto?loadAccordionId=${id}`;
+      // Construct URL using the baseEpisodesUrl from the main HTML.
+      const url = `${baseEpisodesUrl}?loadAccordionId=${id}`;
       try {
         const response = await fetch(url);
         const accordionHtml = await response.text();
         
         // Use regex to extract each episode from the accordion HTML.
-        // This regex looks for an anchor with class "accordionLink",
-        // extracts the href, the episode number (inside <span class="number_eps">)
-        // and the episode title (inside <span class="ep_name">).
+        // It extracts the href, episode number (from <span class="number_eps">),
+        // and the episode title (from <span class="ep_name">).
         const episodes = [];
-        const episodeRegex = /<a\s+href="([^"]+)"\s+class="[^"]*accordionLink[^"]*">[\s\S]*?<span class="number_eps\s*">([\d]+)[\s\S]*?<span class="ep_name\s*">([\s\S]*?)<\/span>/g;
+        const episodeRegex = /<a\s+href="([^"]+)"\s+class="[^"]*accordionLink[^"]*">[\s\S]*?<span\s+class="number_eps\s*">([\d]+)[\s\S]*?<span\s+class="ep_name\s*">([\s\S]*?)<\/span>/g;
         let epMatch;
         while ((epMatch = episodeRegex.exec(accordionHtml)) !== null) {
           let href = epMatch[1].trim();
           const number = epMatch[2].trim();
-          // Clean up the episode title by removing extra whitespace/newlines
           const title = epMatch[3].replace(/\s+/g, ' ').trim();
-          // Prepend baseUrl if the href is relative
           if (!href.startsWith("https")) {
-            href = baseUrl + href;
+            href = baseSiteUrl + href;
           }
           episodes.push({ href, number, title });
         }
-
-        console.log(episodes);
+        
+        console.log(`Episodes from accordion ${id}:`, episodes);
         
         results.push({
           accordionId: id,
@@ -111,7 +130,8 @@ async function extractEpisodes(html) {
     }
     
     return results;
-}
+  }
+  
   
 function extractStreamUrl(html) {
     const sourceRegex = /<source\s+src=['"]([^'"]+)['"][^>]*type=['"]video\/mp4['"][^>]*>/i;
